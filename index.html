@@ -7,6 +7,79 @@
     <style>
       body {
         background-color: #eeeeee;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+
+      #controls-panel {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #controls-panel h3 {
+        margin: 0 0 15px 0;
+        color: #333;
+        text-align: center;
+      }
+
+      .control-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+      }
+
+      .control-row label {
+        min-width: 80px;
+        font-weight: bold;
+        color: #555;
+      }
+
+      .control-row input[type="range"] {
+        flex: 1;
+        margin: 0 10px;
+      }
+
+      .control-row span {
+        min-width: 40px;
+        text-align: right;
+        font-size: 12px;
+        color: #666;
+      }
+
+      #reset-btn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 10px 0;
+        width: 100%;
+      }
+
+      #reset-btn:hover {
+        background-color: #45a049;
+      }
+
+      #info {
+        background-color: #e8f4f8;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #b3d9f2;
+        margin-top: 15px;
+      }
+
+      #info p {
+        margin: 5px 0;
+        font-size: 12px;
+        color: #555;
       }
     </style>
 
@@ -15,13 +88,14 @@
     <script src="./shader.gpu"></script>
     <script src="./model.js"></script>
     <script src="./main.js"></script>
+    <script src="./controls.js"></script>
   </head>
   <body onload="init()">
-    <h2>A Cube with "Trackball" Mouse Rotation</h2>
+    <h2>Surface of Conjugation of Coaxial Cylinder and Cone</h2>
 
     <p id="message">
-      Drag your mouse on the cube to rotate it.<br />
-      (On a touch screen, you can use your finger.)
+      Drag your mouse on the surface to rotate it.<br />
+      Use the controls below to modify the surface parameters in real-time.
     </p>
 
     <div id="canvas-holder">
@@ -29,8 +103,102 @@
         width="600"
         height="600"
         id="webglcanvas"
-        style="background-color: red"
+        style="background-color: #000"
       ></canvas>
+    </div>
+
+    <div id="controls-panel">
+      <h3>Surface Controls</h3>
+
+      <div class="control-row">
+        <label for="R1">R₁ (Cylinder):</label>
+        <input
+          type="range"
+          id="R1"
+          min="0.1"
+          max="2.0"
+          step="0.1"
+          value="0.5"
+        />
+        <span id="R1-value">0.5</span>
+      </div>
+
+      <div class="control-row">
+        <label for="R2">R₂ (Cone):</label>
+        <input
+          type="range"
+          id="R2"
+          min="0.5"
+          max="3.0"
+          step="0.1"
+          value="1.5"
+        />
+        <span id="R2-value">1.5</span>
+      </div>
+
+      <div class="control-row">
+        <label for="c">c (Period):</label>
+        <input
+          type="range"
+          id="c"
+          min="2.0"
+          max="10.0"
+          step="0.5"
+          value="6.0"
+        />
+        <span id="c-value">6.0</span>
+      </div>
+
+      <div class="control-row">
+        <label for="phiDeg">φ (Angle):</label>
+        <input
+          type="range"
+          id="phiDeg"
+          min="-60"
+          max="60"
+          step="5"
+          value="30"
+        />
+        <span id="phiDeg-value">30°</span>
+        <small style="font-size: 10px; color: #888; margin-left: 5px"
+          >(-60° to +60°)</small
+        >
+      </div>
+
+      <div class="control-row">
+        <label for="numU">U Samples:</label>
+        <input type="range" id="numU" min="10" max="50" step="2" value="24" />
+        <span id="numU-value">24</span>
+      </div>
+
+      <div class="control-row">
+        <label for="numV">V Samples:</label>
+        <input type="range" id="numV" min="20" max="100" step="4" value="72" />
+        <span id="numV-value">72</span>
+      </div>
+
+      <div class="control-row">
+        <label for="numVlines">V Lines:</label>
+        <input
+          type="range"
+          id="numVlines"
+          min="12"
+          max="60"
+          step="4"
+          value="36"
+        />
+        <span id="numVlines-value">36</span>
+      </div>
+
+      <button id="reset-btn">Reset</button>
+
+      <div id="info">
+        <p><strong>a:</strong> <span id="a-value">-</span></p>
+        <p><strong>b:</strong> <span id="b-value">-</span></p>
+        <p><strong>k₁ (z=0):</strong> <span id="k1-value">-</span></p>
+        <p><strong>k₂ (z=0):</strong> <span id="k2-value">-</span></p>
+        <p><strong>K (z=0):</strong> <span id="K-value">-</span></p>
+      </div>
     </div>
   </body>
 </html>

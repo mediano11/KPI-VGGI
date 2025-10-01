@@ -73,7 +73,17 @@ function initGL() {
   shProgram.iColor = gl.getUniformLocation(prog, "color");
 
   surface = new Model("Surface");
-  surface.BufferData(CreateSurfaceData());
+  //   surface.BufferData(CreateSurfaceData());
+
+  surface.BuildConjugationSurface({
+    R1: 0.5, // cylinder radius
+    R2: 1.5, // cone base radius at junction
+    c: 6.0, // meridian period parameter (4 * R2)
+    phiDeg: 30, // cone vertex angle
+    numU: 24, // along z (meridian)
+    numV: 72, // around axis per U polyline
+    numVlines: 36, // meridians
+  });
 
   gl.enable(gl.DEPTH_TEST);
 }
