@@ -41,41 +41,9 @@ function Model(name) {
     const { R1, R2, c, phiDeg, numU, numV, numVlines } = params;
 
     const phi = deg2rad(phiDeg);
-    const tanPhi = Math.tan(phi);
 
-    // let a;
-    let a = currentParams.R2 - currentParams.R1;
-    // if (Math.abs(R1 - R2) < 1e-12) {
-    //   console.warn("R1 == R2; degeneracy, set a=0.");
-    //   a = 0;
-    // } else {
-    //   const discriminant =
-    //     Math.pow(R1 - R2, 2) / 2 +
-    //     Math.pow(c * tanPhi, 2) / (8 * Math.PI * Math.PI);
-    //   a = (-1 / (R1 - R2)) * discriminant;
+    let a = R2 - R1;
 
-    //   if (R1 > R2 && a >= 0) {
-    //     console.warn("Expected a < 0 when R1 > R2; check input parameters.");
-    //   }
-    // }
-
-    let arg = (c * tanPhi) / (2 * Math.PI * a);
-    if (!isFinite(arg)) {
-      console.error("Invalid parameter combination (division by zero).");
-      arg = 0;
-    }
-    if (Math.abs(arg) > 1) {
-      console.warn("arcsin argument out of range; clamping.");
-      arg = Math.max(-1, Math.min(1, arg));
-    }
-
-    // let asinVal = Math.asin(arg);
-    // let bCandidate;
-    // if ((phi > 0 && R2 > R1) || (phi < 0 && R2 < R1)) {
-    //   bCandidate = (c / (2 * Math.PI)) * asinVal;
-    // } else {
-    //   bCandidate = c / 2 - (c / (2 * Math.PI)) * asinVal;
-    // }
     let bCandidate;
     if (phi < 0 && a < 0) bCandidate = c / 4;
     else if (phi > 0 && a > 0) bCandidate = c / 4;

@@ -1,4 +1,3 @@
-// // Global variables for the surface parameters
 let currentParams = {
   R1: 0.5,
   R2: 1.5,
@@ -89,37 +88,9 @@ function updateAllDisplays() {
 function rebuildSurface() {
   if (surface && surface.BuildConjugationSurface) {
     try {
-      const phi = deg2rad(currentParams.phiDeg);
-      const a = currentParams.R2 - currentParams.R1;
-      c = currentParams.c;
-      let b;
-      // const tanPhi = Math.tan(phi);
-      // const discriminant =
-      //   Math.pow(currentParams.R1 - currentParams.R2, 2) / 2 +
-      //   Math.pow(currentParams.c * tanPhi, 2) / (8 * Math.PI * Math.PI);
-      // const a = (-1 / (currentParams.R1 - currentParams.R2)) * discriminant;
-      // const arcsinArg = (currentParams.c * tanPhi) / (2 * Math.PI * a);
-      // if (
-      //   (phi > 0 && currentParams.R2 > currentParams.R1) ||
-      //   (phi < 0 && currentParams.R2 < currentParams.R1)
-      // ) {
-      //   b = (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
+      surface.BuildConjugationSurface(currentParams);
 
-      // } else if (
-      //   (phi < 0 && currentParams.R2 > currentParams.R1) ||
-      //   (phi > 0 && currentParams.R2 < currentParams.R1)
-      // ) {
-      //   b =
-      //     currentParams.c / 2 -
-      //     (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
-      // } else {
-      //   b = (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
-      // }
-      if (phi < 0 && a < 0) b = c / 4;
-      else if (phi > 0 && a > 0) b = c / 4;
-      else if (phi < 0 && a > 0) b = (3 * c) / 4;
-      else if (phi > 0 && a < 0) b = (3 * c) / 4;
-
+      const { a, b } = surface.geometricFunctions;
       const aValue = document.getElementById("a-value");
       const bValue = document.getElementById("b-value");
       if (aValue) aValue.textContent = a.toFixed(3);
@@ -137,8 +108,6 @@ function rebuildSurface() {
           if (KValue) KValue.textContent = curvatureInfo.K.toFixed(4);
         }
       }
-
-      surface.BuildConjugationSurface(currentParams);
 
       // Redraw
       if (typeof draw === "function") {
