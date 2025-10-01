@@ -1,4 +1,4 @@
-// Global variables for the surface parameters
+// // Global variables for the surface parameters
 let currentParams = {
   R1: 0.5,
   R2: 1.5,
@@ -9,7 +9,6 @@ let currentParams = {
   numVlines: 36,
 };
 
-// Initialize sliders and event listeners
 function initializeControls() {
   const sliders = ["R1", "R2", "c", "phiDeg", "numU", "numV", "numVlines"];
 
@@ -48,6 +47,17 @@ function initializeControls() {
     resetBtn.addEventListener("click", resetToDefaults);
   }
 
+  // Preset buttons
+  const p1 = document.getElementById("preset-1");
+  const p2 = document.getElementById("preset-2");
+  const p3 = document.getElementById("preset-3");
+  const p4 = document.getElementById("preset-4");
+
+  if (p1) p1.addEventListener("click", applyPreset1);
+  if (p2) p2.addEventListener("click", applyPreset2);
+  if (p3) p3.addEventListener("click", applyPreset3);
+  if (p4) p4.addEventListener("click", applyPreset4);
+
   // Initial display update
   updateAllDisplays();
 }
@@ -79,41 +89,42 @@ function updateAllDisplays() {
 function rebuildSurface() {
   if (surface && surface.BuildConjugationSurface) {
     try {
-      // Calculate and display derived parameters using exact formulas
       const phi = deg2rad(currentParams.phiDeg);
-      const tanPhi = Math.tan(phi);
-      const discriminant =
-        Math.pow(currentParams.R1 - currentParams.R2, 2) / 2 +
-        Math.pow(currentParams.c * tanPhi, 2) / (8 * Math.PI * Math.PI);
-      const a = (-1 / (currentParams.R1 - currentParams.R2)) * discriminant;
-
-      // b calculation with conditional logic
-      const arcsinArg = (currentParams.c * tanPhi) / (2 * Math.PI * a);
+      const a = currentParams.R2 - currentParams.R1;
+      c = currentParams.c;
       let b;
+      // const tanPhi = Math.tan(phi);
+      // const discriminant =
+      //   Math.pow(currentParams.R1 - currentParams.R2, 2) / 2 +
+      //   Math.pow(currentParams.c * tanPhi, 2) / (8 * Math.PI * Math.PI);
+      // const a = (-1 / (currentParams.R1 - currentParams.R2)) * discriminant;
+      // const arcsinArg = (currentParams.c * tanPhi) / (2 * Math.PI * a);
+      // if (
+      //   (phi > 0 && currentParams.R2 > currentParams.R1) ||
+      //   (phi < 0 && currentParams.R2 < currentParams.R1)
+      // ) {
+      //   b = (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
 
-      if (
-        (phi > 0 && currentParams.R2 > currentParams.R1) ||
-        (phi < 0 && currentParams.R2 < currentParams.R1)
-      ) {
-        b = (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
-      } else if (
-        (phi < 0 && currentParams.R2 > currentParams.R1) ||
-        (phi > 0 && currentParams.R2 < currentParams.R1)
-      ) {
-        b =
-          currentParams.c / 2 -
-          (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
-      } else {
-        b = (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
-      }
+      // } else if (
+      //   (phi < 0 && currentParams.R2 > currentParams.R1) ||
+      //   (phi > 0 && currentParams.R2 < currentParams.R1)
+      // ) {
+      //   b =
+      //     currentParams.c / 2 -
+      //     (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
+      // } else {
+      //   b = (currentParams.c / (2 * Math.PI)) * Math.asin(arcsinArg);
+      // }
+      if (phi < 0 && a < 0) b = c / 4;
+      else if (phi > 0 && a > 0) b = c / 4;
+      else if (phi < 0 && a > 0) b = (3 * c) / 4;
+      else if (phi > 0 && a < 0) b = (3 * c) / 4;
 
-      // Update calculated parameters display
       const aValue = document.getElementById("a-value");
       const bValue = document.getElementById("b-value");
       if (aValue) aValue.textContent = a.toFixed(3);
       if (bValue) bValue.textContent = b.toFixed(3);
 
-      // Calculate and display curvature information at z=0
       if (surface && surface.getCurvatureInfo) {
         const curvatureInfo = surface.getCurvatureInfo(0);
         if (curvatureInfo) {
@@ -127,7 +138,6 @@ function rebuildSurface() {
         }
       }
 
-      // Rebuild the surface
       surface.BuildConjugationSurface(currentParams);
 
       // Redraw
@@ -166,3 +176,51 @@ initGL = function () {
     rebuildSurface();
   }, 100);
 };
+
+function applyPreset1() {
+  // 1) phi > 0, a > 0
+  const baseR1 = 0.5;
+  const baseR2 = 0.8;
+  const baseC = 3;
+  const basePhiDeg = 30;
+  currentParams.R1 = baseR1;
+  currentParams.R2 = baseR2;
+  currentParams.c = baseC;
+  currentParams.phiDeg = basePhiDeg;
+  updateAllDisplays();
+  rebuildSurface();
+}
+
+function applyPreset2() {
+  // 2) phi < 0, a < 0
+  const baseR1 = 0.9;
+  const baseR2 = 0.5;
+  const baseC = 4.0;
+  const basePhiDeg = -30;
+  currentParams.R1 = baseR1;
+  currentParams.R2 = baseR2;
+  currentParams.c = baseC;
+  currentParams.phiDeg = basePhiDeg;
+  updateAllDisplays();
+  rebuildSurface();
+}
+
+function applyPreset3() {
+  // 3) phi < 0, a > 0
+  currentParams.phiDeg = -30;
+  currentParams.R1 = 0.5;
+  currentParams.R2 = 0.8;
+  currentParams.c = 3.0;
+  updateAllDisplays();
+  rebuildSurface();
+}
+
+function applyPreset4() {
+  // 4) phi > 0, a < 0
+  currentParams.phiDeg = 30;
+  currentParams.R1 = 0.8;
+  currentParams.R2 = 0.5;
+  currentParams.c = 3.0;
+  updateAllDisplays();
+  rebuildSurface();
+}

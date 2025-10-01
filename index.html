@@ -110,6 +110,12 @@
     <div id="controls-panel">
       <h3>Surface Controls</h3>
 
+      <div class="control-row" style="justify-content: space-between; gap: 8px">
+        <button id="preset-1">Case 1</button>
+        <button id="preset-2">Case 2</button>
+        <button id="preset-3">Case 3</button>
+        <button id="preset-4">Case 4</button>
+      </div>
       <div class="control-row">
         <label for="R1">R₁ (Cylinder):</label>
         <input
@@ -154,18 +160,18 @@
         <input
           type="range"
           id="phiDeg"
-          min="-60"
-          max="60"
-          step="5"
+          min="-30"
+          max="30"
+          step="1"
           value="30"
         />
         <span id="phiDeg-value">30°</span>
         <small style="font-size: 10px; color: #888; margin-left: 5px"
-          >(-60° to +60°)</small
+          >(-30° to +30°)</small
         >
       </div>
 
-      <div class="control-row">
+      <!-- <div class="control-row">
         <label for="numU">U Samples:</label>
         <input type="range" id="numU" min="10" max="50" step="2" value="24" />
         <span id="numU-value">24</span>
@@ -188,8 +194,7 @@
           value="36"
         />
         <span id="numVlines-value">36</span>
-      </div>
-
+      </div> -->
       <button id="reset-btn">Reset</button>
 
       <div id="info">
