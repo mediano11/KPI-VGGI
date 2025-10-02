@@ -14,12 +14,6 @@ function Model(name) {
   this.vBuffers = [];
   this.vCounts = [];
 
-  this.BufferData = function (vertices) {
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-    this.count = vertices.length / 3;
-  };
-
   this.Draw = function () {
     // Draw U polylines
     for (let i = 0; i < this.uBuffers.length; i++) {
@@ -43,51 +37,27 @@ function Model(name) {
     const phi = deg2rad(phiDeg);
 
     let a = R2 - R1;
+    if (Math.abs(R2 - R1) < 1e-9) a = 1e-5
 
-    let bCandidate;
-    if (phi < 0 && a < 0) bCandidate = c / 4;
-    else if (phi > 0 && a > 0) bCandidate = c / 4;
-    else if (phi < 0 && a > 0) bCandidate = (3 * c) / 4;
-    else if (phi > 0 && a < 0) bCandidate = (3 * c) / 4;
+    let b;
+    if (phi < 0 && a < 0) b = c / 4;
+    else if (phi > 0 && a > 0) b = c / 4;
+    else if (phi < 0 && a > 0) b = (3 * c) / 4;
+    else if (phi > 0 && a < 0) b = (3 * c) / 4;
 
-    // normalize b into (0,c)
-    let b = ((bCandidate % c) + c) % c;
-    if (b <= 1e-9) b = 1e-6;
 
     // --- Surface definition ---
     const r = (z) => a * (1 - Math.cos((2 * Math.PI * z) / c)) + R1;
-    const rPrime = (z) =>
-      a * ((2 * Math.PI) / c) * Math.sin((2 * Math.PI * z) / c);
-    const A = (z) =>
-      Math.sqrt(
-        1 +
-          Math.pow((2 * Math.PI * a) / c, 2) *
-            Math.pow(Math.sin((2 * Math.PI * z) / c), 2)
-      );
+    const rPrime = (z) => a * ((2 * Math.PI) / c) * Math.sin((2 * Math.PI * z) / c);
+    const A = (z) => Math.sqrt(1 + Math.pow(rPrime(z), 2));
 
-    const surfacePoint = (z, theta) => {
-      const radius = r(z);
-      return [radius * Math.cos(theta), radius * Math.sin(theta), z];
-    };
-
-    const normal = (z, theta) => {
-      const rx = r(z);
-      const rp = rPrime(z);
-      let nx = -rx * Math.cos(theta);
-      let ny = -rx * Math.sin(theta);
-      let nz = rx * rp;
-      let len = Math.sqrt(nx * nx + ny * ny + nz * nz);
-      if (len < 1e-12) return [0, 0, 1]; // FIX: fallback if degenerate
-      return [nx / len, ny / len, nz / len];
-    };
-
-    const k1 = (z) =>
-      (-(4 * Math.PI * Math.PI * a) / (c * c * Math.pow(A(z), 3))) *
-      Math.cos((2 * Math.PI * z) / c);
+    const k1 = (z) => {
+      const rpp = a * Math.pow((2 * Math.PI) / c, 2) * Math.cos((2 * Math.PI * z) / c);
+      return -rpp / Math.pow(A(z), 3);
+    }
+   
     const k2 = (z) => 1 / (r(z) * A(z));
-    const K = (z) =>
-      (-(4 * Math.PI * Math.PI * a) / (c * c * r(z) * Math.pow(A(z), 4))) *
-      Math.cos((2 * Math.PI * z) / c);
+    const K = (z) => k1(z) * k2(z);
 
     // Generate U-polylines
     this.uBuffers = [];
@@ -142,8 +112,6 @@ function Model(name) {
       r: r,
       rPrime: rPrime,
       A: A,
-      surfacePoint: surfacePoint,
-      normal: normal,
       k1: k1,
       k2: k2,
       K: K,
@@ -156,17 +124,5 @@ function Model(name) {
     if (!this.geometricFunctions) return null;
     const { r, A, k1, k2, K } = this.geometricFunctions;
     return { radius: r(z), A: A(z), k1: k1(z), k2: k2(z), K: K(z) };
-  };
-
-  this.getNormals = function (numSamples = 20) {
-    if (!this.geometricFunctions) return [];
-    const { normal, b } = this.geometricFunctions;
-    const normals = [];
-    for (let i = 0; i < numSamples; i++) {
-      const z = (b * i) / (numSamples - 1);
-      const theta = 0;
-      normals.push({ z, theta, normal: normal(z, theta) });
-    }
-    return normals;
   };
 }
